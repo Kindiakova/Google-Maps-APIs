@@ -7,14 +7,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
-import time
+#import time
 
 API_KEY = open('API_KEY.txt', 'r').read()
 default_image = mpimg.imread('noimage.jpg')
-value = [] 
-chosen_rest_lat = 0.0 
-chosen_rest_lng = 0.0
-nearby = []
+
+start_time = None
 
 
 food_types = [
@@ -224,11 +222,11 @@ def find_nearbyrest(lat, lon):
 
     base_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
-    radius = 500
+    radius = 1000
     data = None
     all_results = {}
     while radius < 3000 and len(all_results) < 5:
-        radius = radius + 500
+        radius = radius + 1000
 
         for food_type in food_types:
             params = {
@@ -290,8 +288,7 @@ def get_dist_dur(start, end):
 def get_coordinates(address):
     
     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-    
-    # Параметри запиту
+
     params = {
         "address": address,
         "key": API_KEY
@@ -316,9 +313,6 @@ def get_coordinates(address):
             return f"Помилка у відповіді API: {data['status']}"
     else:
         return f"Помилка HTTP-запиту: {response.status_code}"
-
-#start = "Palace Lucerna, Nové Město"
-#end = "Project FOX, Praha 3-Žižkov"
 
 def get_place_details(place_id):
     base_url = 'https://maps.googleapis.com/maps/api/place/details/json'
@@ -362,13 +356,19 @@ def search_cafes_by_coords(lat, lon):
         routes.append(route)
         deliv = get_delivery_time(f"{lat},{lon}",f"{place['geometry']['location']['lat']},{place['geometry']['location']['lng']}")
         delivery.append(deliv)
-
+    
+    #end_time = time.perf_counter()  # Кінцевий час
     display_places_info(places, details, delivery, routes)
 
+    #elapsed_time = end_time - start_time
+    #print(f"Час виконання {elapsed_time:.6f} секунд")
 
 
 # Функція для обробки введення користувача
 def search_cafes():
+    #global start_time 
+    #start_time = time.perf_counter()  # Початковий час
+
     clear_error_messages()
 
     if choice_var.get() == "coords":
